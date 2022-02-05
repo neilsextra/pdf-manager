@@ -57,12 +57,8 @@
             </div>
         </div>
         <div id="details" style="position:fixed; top:75px; right:10px; width:400px; bottom:260px; border:3px solid #0174DF; padding:10px; overflow:hidden; background-color:rgba(255, 255, 255, 0.3);">
-            <div id="summary" style="position:absolute; top:10px; right:10px; left:10px; bottom:50px; border:3px solid #0174DF; padding:10px; overflow:auto; background-color:rgba(255, 255, 255, 1.0);">
+            <div id="summary" style="position:absolute; top:10px; right:10px; left:10px; bottom:10px; border:3px solid #0174DF; padding:10px; overflow:auto; background-color:rgba(255, 255, 255, 1.0);">
             </div>
-            <div id="analyzeButton" class="action-btn" style="position: absolute; bottom:0px; right:10px; width:70px;">
-                <a id="analyze" href="" style="color: #006DF0; font-size: 18px; font-weight: bold; text-decoration: none">Analyze</a>
-            </div>
-
         </div>
 
         <div style="position:absolute; left:10px; right:0px; bottom:10px;">
@@ -76,8 +72,8 @@
                         <p id='dropfiletext'>Drop Documents Here</p>
                         <p>or</p>
                         <p></p>
-                        <input class='uploadbtn' id='uploadbtn' type='button' value="Select Documents" />
-                        <input id='upload' type='file' accept='*.jpg|*.png' multiple/>
+                        <input class='action-btn' id='uploadbtn' type='button' value="Select Documents" />
+                        <input id='upload' type='file' accept='*.pdf' multiple/>
                     </div>
                 </div>
             </div>
@@ -127,65 +123,19 @@
                                     <input type="text" id="cloud-instance-crn" name="cloud-instance-crn" style="font-size: small; width:380px; height:18px;"></input>
                                 </td>
                             </tr>
-                        </table>cloud-key-id
+                            <tr></tr>
+                            <tr style="font-weight: bold; color:red;">
+                                <td id="cloud-message"></td>
+                            </tr>
+                        </table>
                     </div>
                     <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
-                        <button class="modal-btn" id="ok_cloud_connect_button">OK</button>
-                        <button class="modal-cancel-btn" id="cancel_cloud_connect_button" style="display:none;" onclick="close_panel( '#cloud-connect')">Cancel</button>
+                        <button class="action-btn" id="ok_cloud_connect_button">OK</button>
+                        <button class="action-btn" id="cancel_cloud_connect_button" style="display:none;" onclick="close_panel( '#cloud-connect')">Cancel</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="model" id="train-model" style="display:none">
-        <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
-            <div class="modal-content" style="margin-top:40px; width:440px;">
-                <div class="modal-header">
-                    <span class="close" style="display:inline-block;" onclick="close_panel( '#train-model')">&times;</span>
-                    <h2 id="dialog_title">Train Model</h2>
-                </div>
-                <div class="modal-body" id="text" style="height:140px;">
-                    <table style="font-size: small; padding:8px;">
-                        <tr>
-                            <td style="font-weight: bold; color:black;">
-                                Training URL
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="text" id="training-url" name="training-url" style="font-size: small; width:380px; height:18px;"></input>
-                            </td>
-                        </tr>
-                        <tr style="margin-top:5px;">
-                            <td style="font-weight: bold; color:black;">
-                                APIM Key
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="text" id="apim-key" name="apim-key" style="font-size: small; width:380px; height:18px;"></input>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <label type="text" id="train-message" name="train-message" style="font-size: small; width:380px; height:18px; color:red"></label>
-                            </td>
-                        </tr>
-
-                    </table>
-                </div>
-                <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
-                    <button class="modal-btn" id="ok_train_model_button">OK</button>
-                    <button class="modal-cancel-btn" id="cancel_train_model_button" onclick="close_panel( '#train-model')">Cancel</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    </div>
-
     </div>
 
     <div id='waitDialog' class='modal' style="display:none;">

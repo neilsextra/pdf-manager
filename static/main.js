@@ -372,36 +372,13 @@ async function convert(content, scale) {
 }
 
 $(function() {
-    $("#cloud-directory").val("/");
 
-    $("#analyze").children().prop('disabled', true);
-    $("#analyze").css('color', '#dddddd');
-
-    $('#analyze').on('click', (e) => {
-
-        $(this).Analyze($(this).Filename);
-
-        return false;
-
-    });
-
-    $('#train').on('click', (e) => {
-
-        $('#train-model').css('display', 'inline-block');
-
-        return false;
-
-    });
-
-    $('#connect').on('click', (e) => {
-
+     $('#connect').on('click', (e) => {
+  
         $('#close-connect').css('display', 'inline-block');
         $('#cancel_cloud_connect_button').css('display', 'inline-block');
 
         $('#cloud-connect').css('display', 'inline-block');
-
-        $("#analyze").children().prop('disabled', true);
-        $("#analyze").css('color', '#dddddd');
 
         var display = $('#display')[0];
 
@@ -457,7 +434,7 @@ $(function() {
     });
 
     $('#ok_cloud_connect_button').on('click', (e) => {
-
+       
         if ($("#cloud-end-point").val().trim() == "" ||
             $("#cloud-key-id").val().trim() == "" ||
             $("#cloud-instance-crn").val().trim() == "") {
