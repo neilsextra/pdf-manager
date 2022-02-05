@@ -1,0 +1,19 @@
+{
+  "name": "pdf-manager",
+  "homepage": "https://www.brittliff.org",
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "jquery.cookie": "1.4.1",
+    "swiper": "^4.4.1",
+    "pdfjs-dist": "2.3.200"
+  }
+}
