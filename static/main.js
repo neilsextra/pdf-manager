@@ -17,8 +17,6 @@ function close_panel(id) {
 function drawBoundingBox(canvas, bounds, entry) {
     var context = canvas.getContext('2d');
 
-    console.log(bounds);
-
     var width = context.canvas.width;
     var height = context.canvas.height;
 
@@ -48,12 +46,13 @@ function drawBoundingBox(canvas, bounds, entry) {
 
 }
 
-$.fn.Select = async(filename) => {
+$.fn.Select = async(filename, bucket) => {
+    console.log("Select", filename, bucket);
+
     $('#waitMessage').text("Generating PDF");
     $('#waitDialog').css('display', 'inline-block');
 
-    var cloud = new Cloud($('#cloud-account').val(), $('#cloud-token').val(), $('#cloud-container').val(), $('#cloud-directory').val());
-    var pdf = await cloud.retreive(filename);
+    var pdf = await __cloud.retrieve(bucket, filename);
     var canvases = await convert(pdf, RATIO);
 
     var display = $('#display')[0];
@@ -134,7 +133,7 @@ $.fn.Query = () => {
      */
     function createSwiperEntry(entry) {
         var html = $('#swiper-wrapper').html();
-        var swiperEntry = generateSwiperEntry(html, entry);
+        var swiperEntry = generateSwiperEntry(html, entry, $('#cloud-bucket').val());
 
         $('#swiper-wrapper').html(swiperEntry);
 
@@ -153,9 +152,9 @@ $.fn.Query = () => {
      * @param {*} html 
      * @param {*} filename  
      */
-    function generateSwiperEntry(html, entry) {
+    function generateSwiperEntry(html, entry, bucket) {
 
-        var pageHtml = html + `<div class="swiper-slide" style="border:2px solid #0174DF; padding:5px; width:180px; " onclick='$(this).Select("${entry['path']}");'> ` +
+        var pageHtml = html + `<div class="swiper-slide" style="border:2px solid #0174DF; padding:5px; width:180px; " onclick='$(this).Select("${entry['name']}", "${bucket}");'> ` +
             `<div id="id-${entry['name']}" style="width:180px; height:150px; margin:auto; overflow:hidden;"/>` +
             "<img  " +
             `src='${('modelId' in entry ? pdfImageModel : pdfImageNoModel)}'` +

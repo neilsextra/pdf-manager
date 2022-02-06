@@ -147,7 +147,7 @@ def upload():
 
         uploaded_files = request.files
 
-        log(f, '[UPLOAD] Files %d' % (len(uploaded_files)))
+        log(f, "[UPLOAD] Files count - '%d'" % (len(uploaded_files)))
 
         files = []
 
@@ -155,11 +155,11 @@ def upload():
 
         for uploaded_file in uploaded_files:
 
-            log(f, "[UPLOAD] Uploaded file - '%s'" % uploaded_file)
-
             fileContent = request.files.get(uploaded_file)
 
             upload_file_contents(f, client, bucket, uploaded_file, fileContent)
+
+            files.append(uploaded_file)
 
             log(f, "[UPLOAD] Uploaded file - '%s'" % uploaded_file)
 
@@ -190,35 +190,26 @@ def upload():
 
 @app.route("/retrieve", methods=["GET"])
 def retrieve():
-    account = request.values.get('account')
-    token = request.values.get('token')
-    container = request.values.get('container')
-    directory = request.values.get('directory')
+
+    end_point = urllib.parse.unquote(request.values.get('endpoint'))
+    key_id = request.values.get('keyid')
+    instance_crn = request.values.get('instancecrn')
+    bucket = request.values.get('bucket')
     filename = request.values.get('filename')
 
-    download_stream = None
+    configuration = get_configuration()
 
-    return Response(io.BytesIO(download_stream.readall()), mimetype='application/pdf')
-
-
-
-    for training_document in training_documents:
-        log(f, '[TRAIN] trained %s' % training_document['documentName'])
-        file_client = directory_client.get_file_client(training_document['documentName'])
-        file_client.set_metadata({'modelId': modelId,
-                                  'forms_recognizer_url' : form_url,
-                                  'apim_key' : apim_key,
-                                  'pages': str(training_document['pages'])})
-
-    log(f, '[TRAIN] training finished')
-    f.close()
-  
-    output = {
-        'ModelId' : modelId
-    }
+    f = open(configuration['debug_file'], 'a')
  
-    return json.dumps(output, sort_keys=True), 200
+    log(f, "[RETRIEVE] commenced  - '%s' - '%s' - '%s' - '%s' - '%s'" % 
+            (end_point, key_id, instance_crn, bucket, filename))
 
+    client = get_client(f, end_point, key_id, instance_crn)
+    file = client.Object(bucket, filename).get()
+
+    data = file['Body'].read()
+
+    return Response(io.BytesIO(data), mimetype='application/pdf')
 
 @app.route("/")
 def start():

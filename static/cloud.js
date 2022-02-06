@@ -50,13 +50,15 @@ Cloud.prototype.setup = function(formData) {
 
 }
 
-Cloud.prototype.retreive = function(filename) {
+Cloud.prototype.retrieve = function(bucket,filename) {
 
     return new Promise((accept, reject) => {
 
-        fetch(`/retrieve?account=${encodeURIComponent(this.__account)}&token=${encodeURIComponent(this.__token)}` +
-                `&container=${encodeURIComponent(this.__container)}` +
-                `&directory=${encodeURIComponent(this.__directory)}&filename=${encodeURIComponent(filename)}`, {
+        fetch(`/retrieve?endpoint=${encodeURIComponent(this.__end_point)}&` +
+              `keyid=${encodeURIComponent(this.__key_id)}&` +
+              `instancecrn=${encodeURIComponent(this.__instance_crn)}` + 
+              `&bucket=${encodeURIComponent(bucket)}&` +
+              `filename=${encodeURIComponent(filename)}`, {
                     responseType: 'blob'
                 })
             .then(res => res.blob())
