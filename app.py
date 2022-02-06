@@ -12,6 +12,7 @@ import time
 import re
 import operator
 import numpy as np
+import urllib.parse
 from requests import get, post
 from pathlib import Path
 
@@ -34,38 +35,52 @@ def log(f, message):
     f.write("%s : %s\n" % (str(datetime.now()), message))
     f.flush()
 
-
 def get_configuration():
     debug_file = "debug.log"
-    max_tries = "15"    
-    wait_sec = "5"
-    max_wait_sec = "60"
-    terms = {}
 
     try:
         import configuration as config
         
         debug_file = config.DEBUG_FILE
-        max_tries = config.MAX_TRIES
-        wait_sec = config.WAIT_SEC
-        max_wait_sec = config.MAX_WAIT_SEC
-        terms = config.TERMS
+
     except ImportError:
         pass
 
     debug_file = environ.get('DEBUG_FILE', debug_file)
-    max_tries = environ.get('MAX_TRIES', max_tries)
-    wait_sec = environ.get('WAIT_SEC', max_tries)
-    max_wait_sec = environ.get('WAIT_SEC', max_wait_sec)
-    terms = environ.get('TERMS', terms)
 
     return {
-        'debug_file': debug_file,
-        'max_tries': max_tries,
-        'wait_sec': wait_sec,
-        'max_wait_sec': max_wait_sec,
-        'terms': terms
-    }
+        'debug_file': debug_file
+     }
+
+def get_client(f, end_point, key_id, instance_crn):
+    client = ibm_boto3.resource("s3",
+    ibm_api_key_id=key_id,
+    ibm_service_instance_id=instance_crn,
+    ibm_auth_endpoint='https://iam.cloud.ibm.com/identity/token',
+    config=Config(signature_version="oauth"),
+    endpoint_url=end_point)
+
+    return client
+ 
+def get_bucket_contents(f, client, bucket_name):
+    print("Retrieving bucket contents from: {0}".format(bucket_name))
+    paths = []
+    try:
+        files = client.Bucket(bucket_name).objects.all()
+        for file in files:
+            print("Item: {0} ({1} bytes).".format(file.key, file.size))
+
+            paths.append({
+                'name' : file.key,
+                'size' : file.size
+            })
+
+    except ClientError as be:
+        print("CLIENT ERROR: {0}\n".format(be))
+    except Exception as e:
+        print("Unable to retrieve bucket contents: {0}".format(e))
+
+    return paths
 
 @ app.route("/query", methods=["GET"])
 def query():
@@ -75,13 +90,18 @@ def query():
 
     output = {}
 
-    end_point = request.values.get('endpoint')
+    end_point = urllib.parse.unquote(request.values.get('endpoint'))
     key_id = request.values.get('keyid')
     instance_crn = request.values.get('instancecrn')
+    bucket = request.values.get('bucket')
 
     log(f, "[QUERY] commenced  - '%s' - '%s' - '%s' " % (end_point, key_id, instance_crn))
 
-    output['paths'] = []
+    client = get_client(f, end_point, key_id, instance_crn)
+
+    paths = get_bucket_contents(f, client, bucket)
+
+    output['paths'] = paths
 
     f.close()
 

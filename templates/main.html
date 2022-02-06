@@ -91,7 +91,7 @@
                         <span id="close-connect" class="close" style="display:none;" onclick="close_panel( '#cloud-connect')">&times;</span>
                         <h2 id="dialog_title">Connect to IBM Cloud - Object Store</h2>
                     </div>
-                    <div class="modal-body" id="text" style="height:220px;">
+                    <div class="modal-body" id="text" style="height:240px;">
                         <table style="font-size: small; padding:8px;">
                             <tr>
                                 <td style="font-weight: bold; color:black;">
@@ -123,7 +123,19 @@
                                     <input type="text" id="cloud-instance-crn" name="cloud-instance-crn" style="font-size: small; width:380px; height:18px;"></input>
                                 </td>
                             </tr>
-                            <tr></tr>
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Bucket
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="cloud-bucket" name="cloud-bucket" style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
                             <tr style="font-weight: bold; color:red;">
                                 <td id="cloud-message"></td>
                             </tr>

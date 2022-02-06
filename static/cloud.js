@@ -6,13 +6,13 @@ function Cloud(end_point, key_id, instance_crn) {
 
 }
 
-Cloud.prototype.query = function() {
+Cloud.prototype.query = function(bucket) {
 
     return new Promise((accept, reject) => {
         var xhttp = new XMLHttpRequest();
 
         xhttp.open("GET", `/query?endpoint=${encodeURIComponent(this.__end_point)}&keyid=${encodeURIComponent(this.__key_id)}` +
-            `&instancecrn=${encodeURIComponent(this.__instance_crn)}`, true);
+            `&instancecrn=${encodeURIComponent(this.__instance_crn)}&bucket=${encodeURIComponent(bucket)}`, true);
 
         xhttp.onreadystatechange = async function() {
 

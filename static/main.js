@@ -3,7 +3,6 @@
  * 
  */
 var slidesPerView = 8;
-var CHUNK_SIZE = 1024;
 var RATIO = 1.5;
 var swiper = null;
 var __filename = null;
@@ -179,7 +178,7 @@ $.fn.Query = () => {
 
     __cloud = new Cloud($('#cloud-end-point').val(), $('#cloud-key-id').val(), $('#cloud-instance-crn').val());
 
-    __cloud.query().then(result => {
+    __cloud.query($('#cloud-bucket').val()).then(result => {
         
         console.log(result);
 
