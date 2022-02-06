@@ -44,7 +44,7 @@ Cloud.prototype.query = function(bucket) {
 
 Cloud.prototype.setup = function(formData) {
 
-    formData.append("endpoint", this.__endpoint);
+    formData.append("endpoint", this.__end_point);
     formData.append("keyid", this.__key_id);
     formData.append("instancecrn", this.__instance_crn);
 

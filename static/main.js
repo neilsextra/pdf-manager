@@ -442,7 +442,7 @@ $(function() {
             __cloud.setup(formData);
             formData.append(file.name, file);
 
-            formData.append('bucket', $('#cloud-bucket'));
+            formData.append('bucket', $('#cloud-bucket').val());
    
             $.ajax({
                 url: '/upload',
