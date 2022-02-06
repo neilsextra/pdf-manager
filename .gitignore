@@ -3,3 +3,4 @@ env
 node_modules
 flask_npm/__pycache__
 debug.log
+__pycache__
