@@ -34,6 +34,7 @@ app.register_blueprint(views)
 def log(f, message):
     f.write("%s : %s\n" % (str(datetime.now()), message))
     f.flush()
+    print("%s : %s\n" % (str(datetime.now()), message))
 
 def get_configuration():
     debug_file = "debug.log"
@@ -92,7 +93,15 @@ def get_bucket_contents(f, client, bucket_name):
 
     return paths
 
-@ app.route("/query", methods=["GET"])
+def upload_file_contents(f, client, bucket_name, file_name, data):
+    bucket = client.Bucket(bucket_name)
+
+    obj = bucket.Object(file_name)
+    
+    obj.upload_fileobj(data)
+
+
+@app.route("/query", methods=["GET"])
 def query():
     configuration = get_configuration()
 
@@ -142,12 +151,17 @@ def upload():
 
         files = []
 
+        client = get_client(f, end_point, key_id, instance_crn)
+
         for uploaded_file in uploaded_files:
+
+            log(f, "[UPLOAD] Uploaded file - '%s'" % uploaded_file)
+
             fileContent = request.files.get(uploaded_file)
 
- 
-            log(f, "[UPLOAD] Uploaded  file '%s'" % uploaded_file)
+            upload_file_contents(f, client, bucket, uploaded_file, fileContent)
 
+            log(f, "[UPLOAD] Uploaded file - '%s'" % uploaded_file)
 
         output.append({
             "filenames": files,
