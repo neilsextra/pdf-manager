@@ -73,13 +73,15 @@ def query():
 
     f = open(configuration['debug_file'], 'a')
 
-    output = []
+    output = {}
 
     end_point = request.values.get('endpoint')
     key_id = request.values.get('keyid')
     instance_crn = request.values.get('instancecrn')
 
-    log(f, '[QUERY] commenced  - %s:%s:%s ' % (end_point, key_id, instance_crn))
+    log(f, "[QUERY] commenced  - '%s' - '%s' - '%s' " % (end_point, key_id, instance_crn))
+
+    output['paths'] = []
 
     f.close()
 

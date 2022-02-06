@@ -22,8 +22,7 @@ Cloud.prototype.query = function() {
 
                 accept({
                     status: this.status,
-                    metadata: response[0]['metadata'],
-                    paths: response[0]['paths']
+                    response: response 
                 });
 
             } else if (this.status === 500) {
@@ -45,10 +44,9 @@ Cloud.prototype.query = function() {
 
 Cloud.prototype.setup = function(formData) {
 
-    formData.append("cloud_account", this.__account);
-    formData.append("cloud_token", this.__token);
-    formData.append("cloud_container", this.__container);
-    formData.append("cloud_directory", this.__directory);
+    formData.append("endpoint", this.__endpoint);
+    formData.append("keyid", this.__key_id);
+    formData.append("instancecrn", this.__instance_crn);
 
 }
 

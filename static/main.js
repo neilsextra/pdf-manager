@@ -7,6 +7,7 @@ var CHUNK_SIZE = 1024;
 var RATIO = 1.5;
 var swiper = null;
 var __filename = null;
+var __cloud = null;
 
 function close_panel(id) {
 
@@ -45,74 +46,6 @@ function drawBoundingBox(canvas, bounds, entry) {
     context.font = "8px Arial";
     context.fillStyle = "rgba(0, 0, 0, 1.0)";
     context.fillText(`${entry}`, x + w + 2, y);
-
-}
-
-$.fn.Analyze = async(filename) => {
-    $('#waitMessage').text("Analyzing File");
-    $('#waitDialog').css('display', 'inline-block');
-
-    var cloud = new Cloud($("#cloud-account").val(), $("#cloud-token").val(), $("#cloud-container").val(), $("#cloud-directory").val());
-    var result = await cloud.analyze(filename);
-    var entries = JSON.parse(result);
-    var html = `<table>`;
-    html += '<tr>';
-    html += '<td style="border-right:1px solid rgba(0,0,0,0.4);">';
-    html += `<b>Item&nbsp;</b>`;
-    html += '</td>';
-    html += '<td style="border-right:1px solid rgba(0,0,0,0.4);">';
-    html += `<b>Page&nbsp;</b>`;
-    html += '</td>';
-    html += '<td style="border-right:1px solid rgba(0,0,0,0.4);">';
-    html += `<b>Title</b>`;
-    html += '</td>';
-    html += '<td>';
-    html += `<b>Value</b>`;
-    html += '</td>';
-    html += '</tr>';
-    html += '<tr><td>&nbsp;</td></tr>';
-
-    for (entry in entries) {
-        var item = parseInt(entry) + 1;
-
-        html += '<tr>';
-
-        html += '<td style="color:rgba(0, 0, 0, 0.5);">';
-        html += `${item}`;
-        html += '</td>';
-
-
-        html += '<td>';
-        html += `<i>${entries[entry]['entry']['page']}`;
-        html += '</td>';
-
-
-        html += '<td>';
-        html += `${entries[entry]['entry']['title']}`;
-        html += '</td>';
-
-
-        html += '<td>';
-        html += `<i>${entries[entry]['result']['value']['text']}</i>`;
-        html += '</td>';
-
-        html += '</tr>';
-        html += '<tr><td>&nbsp;</td></tr>';
-
-        var canvas = $(`#page-${entries[entry]['entry']['page']}`).children('canvas')[0];
-
-        if (entries[entry]['result']['value']['bounding_box'] != null) {
-            drawBoundingBox(canvas, entries[entry]['result']['value']['bounding_box'], item);
-        }
-
-    }
-
-    html += `<table>`;
-
-    $('#summary').html(html);
-
-    $('#waitMessage').text("");
-    $('#waitDialog').css('display', 'none');
 
 }
 
@@ -192,22 +125,6 @@ $.fn.Select = async(filename) => {
 
 }
 
-$.fn.Train = async() => {
-
-    $('#waitMessage').text("Training Model");
-    $('#waitDialog').css('display', 'inline-block');
-
-    var cloud = new Cloud($("#cloud-account").val(), $("#cloud-token").val(), $("#cloud-container").val(), $("#cloud-directory").val());
-
-    var modelID = await cloud.train($("#training-url").val(), $("#apim-key").val());
-
-    $(this).Query();
-
-    $('#waitMessage').text("");
-    $('#waitDialog').css('display', 'none');
-
-}
-
 $.fn.Query = () => {
 
     /**
@@ -258,13 +175,15 @@ $.fn.Query = () => {
     $('#waitMessage').text("Retrieving Files");
     $('#waitDialog').css('display', 'inline-block');
 
-    var cloud = new Cloud($('#cloud-account').val(), $('#cloud-token').val(), $('#cloud-container').val(), $('#cloud-directory').val());
+    console.log($('#cloud-end-point').val(), $('#cloud-key-id').val(), $('#cloud-instance-crn').val());
 
-    cloud.query().then(result => {
-        var paths = result.paths;
-        var metadata = result.metadata;
+    __cloud = new Cloud($('#cloud-end-point').val(), $('#cloud-key-id').val(), $('#cloud-instance-crn').val());
 
-        $('#modelID').text(`Model ID: ${metadata.hasOwnProperty('modelId') ? metadata['modelId'] : 'No Model'}`);
+    __cloud.query().then(result => {
+        
+        console.log(result);
+
+        var paths = result.response.paths;
 
         $('#swiper-wrapper').html("");
 
