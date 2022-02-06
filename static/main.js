@@ -156,12 +156,12 @@ $.fn.Query = () => {
     function generateSwiperEntry(html, entry) {
 
         var pageHtml = html + `<div class="swiper-slide" style="border:2px solid #0174DF; padding:5px; width:180px; " onclick='$(this).Select("${entry['path']}");'> ` +
-            `<div id="id-${entry['path']}" style="width:180px; height:150px; margin:auto; overflow:hidden;"/>` +
+            `<div id="id-${entry['name']}" style="width:180px; height:150px; margin:auto; overflow:hidden;"/>` +
             "<img  " +
             `src='${('modelId' in entry ? pdfImageModel : pdfImageNoModel)}'` +
             "' style='position:absolute; display:block; width:150px; height:100px;top:10px; left:10px;'></img> " +
             ` <label style='position:absolute; display:block; font-size:14px; bottom:0px; left:0px; width:100%; color:#0174DF; text-overflow: ellipsis; z-index:99; ` +
-            ` background-color:rgb(0, 0, 0, 0.1);'>&nbsp;${entry['path']}</label>` +
+            ` background-color:rgb(0, 0, 0, 0.1);'>&nbsp;${entry['name']}</label>` +
             `</div>` +
 
             `<div class="play">` +
@@ -437,16 +437,13 @@ $(function() {
     function postData(file) {
 
         return new Promise(async(accept, reject) => {
-
-            var size = await getSize(file);
-            var formData = new FormData();
-            var cloud = new Cloud($("#cloud-account").val(), $("#cloud-token").val(), $("#cloud-container").val(), $("#cloud-directory").val());
-
-            cloud.setup(formData);
-
-            formData.append('file_size', size);
+             var formData = new FormData();
+ 
+            __cloud.setup(formData);
             formData.append(file.name, file);
 
+            formData.append('bucket', $('#cloud-bucket'));
+   
             $.ajax({
                 url: '/upload',
                 type: 'POST',

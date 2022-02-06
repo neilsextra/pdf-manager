@@ -61,7 +61,17 @@ def get_client(f, end_point, key_id, instance_crn):
     endpoint_url=end_point)
 
     return client
- 
+
+def get_buckets(client):
+    try:
+        buckets = client.buckets.all()
+        for bucket in buckets:
+            print("Bucket Name: {0}".format(bucket.name))
+    except ClientError as be:
+        print("CLIENT ERROR: {0}\n".format(be))
+    except Exception as e:
+        print("Unable to retrieve list buckets: {0}".format(e))
+
 def get_bucket_contents(f, client, bucket_name):
     print("Retrieving bucket contents from: {0}".format(bucket_name))
     paths = []
@@ -95,7 +105,7 @@ def query():
     instance_crn = request.values.get('instancecrn')
     bucket = request.values.get('bucket')
 
-    log(f, "[QUERY] commenced  - '%s' - '%s' - '%s' " % (end_point, key_id, instance_crn))
+    log(f, "[QUERY] commenced  - '%s' - '%s' - '%s' - '%s'" % (end_point, key_id, instance_crn, bucket))
 
     client = get_client(f, end_point, key_id, instance_crn)
 
@@ -114,13 +124,12 @@ def upload():
 
     f = open(configuration['debug_file'], 'a')
     
-    cloud_account = request.values.get('cloud_account')
-    cloud_token = request.values.get('cloud_token')
-    cloud_container = request.values.get('cloud_container')
-    cloud_directory = request.values.get('cloud_directory')
-    file_size = int(request.values.get('file_size'))
+    end_point = urllib.parse.unquote(request.values.get('endpoint'))
+    key_id = request.values.get('keyid')
+    instance_crn = request.values.get('instancecrn')
+    bucket = request.values.get('bucket')
 
-    log(f, '[UPLOAD] commenced uploading - %s:%s:%s - %d' %(cloud_account, cloud_container, cloud_directory, file_size))
+    log(f, "[UPLOAD] commenced  - '%s' - '%s' - '%s' - '%s'" % (end_point, key_id, instance_crn, bucket))
 
     output = []
 
@@ -136,10 +145,7 @@ def upload():
         for uploaded_file in uploaded_files:
             fileContent = request.files.get(uploaded_file)
 
-            file_system_client = get_file_system_client(cloud_account, cloud_token, cloud_container)
  
-            write_data_to_file(file_system_client, cloud_directory, uploaded_file, fileContent, file_size)
-
             log(f, "[UPLOAD] Uploaded  file '%s'" % uploaded_file)
 
 
