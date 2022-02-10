@@ -1,3 +1,4 @@
+from configparser import NoOptionError
 from flask import Flask, Blueprint, render_template, request, send_file, Response
 from flask_npm import Npm
 import io
@@ -7,11 +8,9 @@ import string
 import json
 import sys
 import os
-import requests
 import time
 import re
 import operator
-import numpy as np
 import urllib.parse
 from requests import get, post
 from pathlib import Path
@@ -52,6 +51,31 @@ def get_configuration():
     return {
         'debug_file': debug_file
      }
+
+def analyze_form(f, post_url, url, token, data):
+    configuration = get_configuration()
+
+    params = {
+        "machine_only": True
+    }
+
+    headers = {
+        # Request headers
+        'Authorization': 'Token ' + token
+    }
+
+    try:
+        resp = post(url=url, data=data, headers=headers, params=params)
+  
+        print("POST analyze succeeded:\n%s" % resp.headers)
+       
+        return resp.headers
+
+    except Exception as e:
+        print("POST analyze failed:\n%s" % str(e))
+
+    return None
+
 
 def get_client(f, end_point, key_id, instance_crn):
     client = ibm_boto3.resource("s3",
@@ -210,6 +234,25 @@ def retrieve():
     data = file['Body'].read()
 
     return Response(io.BytesIO(data), mimetype='application/pdf')
+
+@app.route("/analyze", methods=["GET"])
+def analyze():
+
+    end_point = urllib.parse.unquote(request.values.get('endpoint'))
+    key_id = request.values.get('keyid')
+    instance_crn = request.values.get('instancecrn')
+    bucket = request.values.get('bucket')
+    filename = request.values.get('filename')
+
+    configuration = get_configuration()
+
+    f = open(configuration['debug_file'], 'a')
+
+    log(f, "[ANALYZE] commenced  - '%s' - '%s' - '%s' - '%s' - '%s'" % 
+            (end_point, key_id, instance_crn, bucket, filename))
+
+    client = get_client(f, end_point, key_id, instance_crn)
+    file = client.Object(bucket, filename).get()
 
 @app.route("/")
 def start():

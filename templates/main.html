@@ -37,9 +37,9 @@
             <img src="{{ url_for('static', filename='receipt.svg') }}" style="position:absolute; top:6px; left:10px; height:64px; width:64px" alt="Receipt" />
             <div id='toolbar'>
                 <div style="position:absolute; top:16px; left:84px; font-weight:bold; font-size: 32px; letter-spacing: 4px; color:#006DF0;">
-                    <label>Forms Viewer</label>
+                    <label>PDF Manager</label>
                 </div>
-                <div id="fileNameLabel" style="position: absolute; top:15px; left:90px; font-size:18px; width:550px; height:24px; text-align:right; padding:10px; color: #006DF0;">
+                <div id="fileNameLabel" style="position: absolute; top:15px; left:340px; font-size:18px; width:550px; height:24px; text-align:left; padding:10px; color: #006DF0;">
                     <label id="fileName"></label>
                 </div>
                 <div id="connectButton" class="action-btn" style="position: absolute; top:10px; right:10px; width:70px;">
@@ -85,7 +85,7 @@
                 <div id='swiper-pagination' class='swiper-pagination' style='margin-top:0px'></div>
             </div>
         </div>
-        <div class="model" id="cloud-connect">
+        <div id="cloud-connect">
             <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
                 <div class="modal-content" style="margin-top:40px; width:440px;">
                     <div class="modal-header">
@@ -142,6 +142,7 @@
                             </tr>
                         </table>
                     </div>
+                    
                     <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
                         <button class="action-btn" id="ok_cloud_connect_button">OK</button>
                         <button class="action-btn" id="cancel_cloud_connect_button" style="display:none;" onclick="close_panel( '#cloud-connect')">Cancel</button>
@@ -149,9 +150,54 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div id="analyze-form" style="display: none;">
+            <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
+                <div class="modal-content" style="margin-top:40px; width:440px;">
+                    <div class="modal-header">
+                        <span id="close-analyze" class="close" style="display:none;" onclick="close_panel( '#cloud-connect')">&times;</span>
+                        <h2 id="dialog_title">Analyze Form</h2>
+                    </div>
+                    <div class="modal-body" id="text" style="height:240px;">
+                        <table style="font-size: small; padding:8px;">
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Analyze URL
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="analyze-url" name="analyze-urlß" style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Token
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="analyze-token" name="analyze-token" style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
 
-    <div id='waitDialog' class='modal' style="display:none;">
+                          <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr style="font-weight: bold; color:red;">
+                                <td id="analyze-message"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
+                        <button class="action-btn" id="ok_analyze_button">OK</button>
+                        <button class="action-btn" id="cancel_analyze_button" onclick="close_panel( '#analyze-form')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id='waitDialog' style="display:none;">
         <div style="position:fixed; text-align: center; top:50%; left:48%; margin-left:0px; margin-top:-100px;">
             <div class='loader'></div>
         </div>

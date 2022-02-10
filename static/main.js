@@ -117,7 +117,7 @@ $.fn.Select = async(filename, bucket) => {
     $("#analyze").children().prop('disabled', false);
     $("#analyze").css('color', ' #006DF0');
 
-    $('#fileName').text(`: ${filename}`);
+    $('#fileName').text(`${filename}`);
 
     $.fn.Filename = filename;
 
@@ -307,6 +307,14 @@ $(function() {
 
     });
 
+    $('#analyze').on('click', (e) => {
+
+        $('#analyze-form').css('display', 'inline-block');
+
+        return false;
+
+    });
+
     var dropzone = $('#droparea');
 
     dropzone.on('dragover', function() {
@@ -363,20 +371,6 @@ $(function() {
             } catch (e) {
                 $('#cloud-message').text(e);
             }
-        }
-
-        return false;
-
-    });
-
-    $('#ok_train_model_button').on('click', (e) => {
-        if ($("#training-url").val().trim() == "" ||
-            $("#apim-key").val().trim == "") {
-            $('#train-message').text("All fields must be completed");
-        } else {
-            $(this).Train();
-
-            $('#train-model').css('display', 'none');
         }
 
         return false;

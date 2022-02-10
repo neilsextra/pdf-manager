@@ -13,10 +13,6 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 RUN npm install
 
-RUN echo '{ "allow_root": true }' > /root/.bowerrc
-
-RUN  bower install
-
 # Make port 80 available to the world outside this container
 EXPOSE 8080
 
