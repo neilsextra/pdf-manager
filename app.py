@@ -51,7 +51,6 @@ def get_configuration():
      }
 
 def analyze_form(f, filename, base_url, token, pdf):
-    configuration = get_configuration()
 
     endpoint = "api/v5/submissions"
     url = base_url + endpoint
@@ -71,14 +70,28 @@ def analyze_form(f, filename, base_url, token, pdf):
 
         print(json.dumps(r.json(), indent=4, sort_keys=True))
 
-        saved_submission_id = r.json()['submission_id']
+        submission_id = r.json()['submission_id']
         
-        return r.json()['submission_id']
+        return get_form_data(f, base_url, token, submission_id)
 
     except Exception as e:
         print("POST analyze failed:\n%s" % str(e))
 
     return None
+
+def get_form_data(f,base_url, token, submission_id):
+    endpoint = "api/v5/submissions"
+    url = base_url + endpoint
+    
+    headers = {'Authorization': 'Token ' + token}
+    params = {'flat': False}
+
+    r = get(url, headers=headers, params=params)
+
+    if "state" in r.json():
+        print("Status", r.json()['state'])
+
+    return r.json()
 
 def get_client(f, end_point, key_id, instance_crn):
     client = ibm_boto3.resource("s3",
@@ -266,15 +279,7 @@ def analyze():
     log(f, "[ANALYZE] completed  - '%s' - '%s' - '%s' - '%s' - '%s'" % 
             (end_point, key_id, instance_crn, bucket, filename))
 
-    print(result)
-
-    output = []
-
-    output.append({
-            "status": 'ok',
-        })
-
-    return json.dumps(output, sort_keys=True), 200
+    return json.dumps(result, sort_keys=True), 200
 
 @app.route("/")
 def start():
