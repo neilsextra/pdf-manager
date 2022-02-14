@@ -18,8 +18,6 @@ from pathlib import Path
 import ibm_boto3
 from ibm_botocore.client import Config, ClientError
 
-from PyPDF2 import PdfFileReader, PdfFileWriter
-
 from datetime import datetime, timedelta
 
 views = Blueprint('views', __name__, template_folder='templates')
@@ -52,30 +50,35 @@ def get_configuration():
         'debug_file': debug_file
      }
 
-def analyze_form(f, url, token, data):
+def analyze_form(f, filename, base_url, token, pdf):
     configuration = get_configuration()
 
-    params = {
-        "machine_only": True
-    }
+    endpoint = "api/v5/submissions"
+    url = base_url + endpoint
+    headers = {'Authorization': 'Token ' + token}
 
-    headers = {
-        # Request headers
-        'Authorization': 'Token ' + token
+    data = {
+        'machine_only': "false"
     }
+    
+    files = [
+        ('file', (filename, pdf, 'application/pdf'))
+    ]  
 
     try:
-        resp = post(url=url, data=data, headers=headers, params=params)
-  
-        print("POST analyze succeeded:\n%s" % resp.headers)
-       
-        return resp.headers
+
+        r = post(url, headers=headers, files=files, data=data)
+
+        print(json.dumps(r.json(), indent=4, sort_keys=True))
+
+        saved_submission_id = r.json()['submission_id']
+        
+        return r.json()['submission_id']
 
     except Exception as e:
         print("POST analyze failed:\n%s" % str(e))
 
     return None
-
 
 def get_client(f, end_point, key_id, instance_crn):
     client = ibm_boto3.resource("s3",
@@ -256,7 +259,9 @@ def analyze():
     client = get_client(f, end_point, key_id, instance_crn)
     file = client.Object(bucket, filename).get()
 
-    result = analyze_form(f, url, token, data = file['Body'].read())
+    data = file['Body'].read()
+
+    result = analyze_form(f, filename, url, token, data)
 
     log(f, "[ANALYZE] completed  - '%s' - '%s' - '%s' - '%s' - '%s'" % 
             (end_point, key_id, instance_crn, bucket, filename))
