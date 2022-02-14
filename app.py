@@ -52,7 +52,7 @@ def get_configuration():
         'debug_file': debug_file
      }
 
-def analyze_form(f, post_url, url, token, data):
+def analyze_form(f, url, token, data):
     configuration = get_configuration()
 
     params = {
@@ -243,6 +243,8 @@ def analyze():
     instance_crn = request.values.get('instancecrn')
     bucket = request.values.get('bucket')
     filename = request.values.get('filename')
+    url = request.values.get('url')
+    token = request.values.get('token')
 
     configuration = get_configuration()
 
@@ -253,6 +255,21 @@ def analyze():
 
     client = get_client(f, end_point, key_id, instance_crn)
     file = client.Object(bucket, filename).get()
+
+    result = analyze_form(f, url, token, data = file['Body'].read())
+
+    log(f, "[ANALYZE] completed  - '%s' - '%s' - '%s' - '%s' - '%s'" % 
+            (end_point, key_id, instance_crn, bucket, filename))
+
+    print(result)
+
+    output = []
+
+    output.append({
+            "status": 'ok',
+        })
+
+    return json.dumps(output, sort_keys=True), 200
 
 @app.route("/")
 def start():

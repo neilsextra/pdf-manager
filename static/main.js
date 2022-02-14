@@ -7,6 +7,7 @@ var RATIO = 1.5;
 var swiper = null;
 var __filename = null;
 var __cloud = null;
+var __bucket = null;
 
 function close_panel(id) {
 
@@ -374,6 +375,18 @@ $(function() {
         }
 
         return false;
+
+    });
+
+    $('#ok_analyze_button').on('click', async (e) => {   
+        console.log(`Analyze: '${$('#analyze-url').val()}' - '${$('#fileName').val()}'`);
+        
+        let result = await __cloud.analyze($('#cloud-bucket').val(), 
+                        $('#fileName').text(), 
+                        $('#analyze-url').val(), 
+                        $('#analyze-token').val());
+
+        $('#analyze-form').css('display', 'none');
 
     });
 

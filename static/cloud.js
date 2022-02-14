@@ -50,7 +50,7 @@ Cloud.prototype.setup = function(formData) {
 
 }
 
-Cloud.prototype.retrieve = function(bucket,filename) {
+Cloud.prototype.retrieve = function(bucket, filename) {
 
     return new Promise((accept, reject) => {
 
@@ -70,8 +70,7 @@ Cloud.prototype.retrieve = function(bucket,filename) {
 
 }
 
-
-Cloud.prototype.analyze = function(bucket) {
+Cloud.prototype.analyze = function(bucket, filename, url, token) {
 
     return new Promise((accept, reject) => {
         var xhttp = new XMLHttpRequest();
@@ -79,7 +78,11 @@ Cloud.prototype.analyze = function(bucket) {
         xhttp.open("GET", `/analyze?endpoint=${encodeURIComponent(this.__end_point)}` + 
             `&keyid=${encodeURIComponent(this.__key_id)}` +
             `&instancecrn=${encodeURIComponent(this.__instance_crn)}` + 
-            `&bucket=${encodeURIComponent(bucket)}`, true);
+            `&bucket=${encodeURIComponent(bucket)}` +
+            `&filename=${encodeURIComponent(filename)}` +           
+            `&url=${encodeURIComponent(url)}` +
+            `&token=${encodeURIComponent(token)}`,
+            true);
 
         xhttp.onreadystatechange = async function() {
 
