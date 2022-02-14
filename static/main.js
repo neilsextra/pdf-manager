@@ -379,14 +379,21 @@ $(function() {
     });
 
     $('#ok_analyze_button').on('click', async (e) => {   
-        console.log(`Analyze: '${$('#analyze-url').val()}' - '${$('#fileName').val()}'`);
+        console.log(`Analyze: '${$('#analyze-url').val()}' - '${$('#fileName').text()}'`);
         
+        $('#waitDialog').css('display', 'inline-block');
+        $('#waitMessage').text(`Analyzing file: '${$('#fileName').text()}'`);
+ 
         let result = await __cloud.analyze($('#cloud-bucket').val(), 
                         $('#fileName').text(), 
                         $('#analyze-url').val(), 
                         $('#analyze-token').val());
 
+        $('#waitMessage').text("");
+        $('#waitDialog').css('display', 'none');
         $('#analyze-form').css('display', 'none');
+
+        $('#summary').text(JSON.stringify(result));
 
     });
 
