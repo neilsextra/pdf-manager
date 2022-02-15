@@ -57,7 +57,7 @@ def analyze_form(f, filename, base_url, token, pdf):
     headers = {'Authorization': 'Token ' + token}
 
     data = {
-        'machine_only': "false"
+        'machine_only': "true"
     }
     
     files = [
@@ -72,21 +72,25 @@ def analyze_form(f, filename, base_url, token, pdf):
 
         submission_id = r.json()['submission_id']
         
-        return get_form_data(f, base_url, token, submission_id)
+        return submission_id
 
     except Exception as e:
         print("POST analyze failed:\n%s" % str(e))
 
     return None
 
-def get_form_data(f,base_url, token, submission_id):
-    endpoint = "api/v5/submissions"
-    url = base_url + endpoint
+def get_form_data(f, base_url, token, submission_id):
+    endpoint = "api/v5/submissions/"
+    url = base_url + endpoint + str(submission_id)
     
+    print("URL:", url)
+
     headers = {'Authorization': 'Token ' + token}
     params = {'flat': False}
 
     r = get(url, headers=headers, params=params)
+
+    print(json.dumps(r.json(), sort_keys=True), 200)
 
     if "state" in r.json():
         print("Status", r.json()['state'])
@@ -274,10 +278,38 @@ def analyze():
 
     data = file['Body'].read()
 
-    result = analyze_form(f, filename, url, token, data)
+    submission_id = analyze_form(f, filename, url, token, data)
 
     log(f, "[ANALYZE] completed  - '%s' - '%s' - '%s' - '%s' - '%s'" % 
             (end_point, key_id, instance_crn, bucket, filename))
+
+    result = {
+        'submission_id' : submission_id,
+        'status': 'ok'
+    }
+
+    return json.dumps(result, sort_keys=True), 200
+
+@app.route("/receive", methods=["GET"])
+def receive():
+
+    url = request.values.get('url')
+    token = request.values.get('token')
+    submission_id = request.values.get('submissionid')
+
+    configuration = get_configuration()
+
+    f = open(configuration['debug_file'], 'a')
+
+    log(f, "[RECEIVE] commenced  - '%s' - '%s' - '%s'" % 
+            (url, token, submission_id))
+
+    result = get_form_data(f, url, token, submission_id)
+
+    log(f, "[RECEIVE] completed  - '%s' - '%s' - '%s'" % 
+            (url, token, submission_id))
+
+    print(json.dumps(result, sort_keys=True))
 
     return json.dumps(result, sort_keys=True), 200
 
