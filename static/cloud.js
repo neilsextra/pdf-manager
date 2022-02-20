@@ -6,7 +6,7 @@ function Cloud(end_point, key_id, instance_crn) {
 
 }
 
-Cloud.prototype.query = function(bucket) {
+Cloud.prototype.query = function (bucket) {
 
     return new Promise((accept, reject) => {
         var xhttp = new XMLHttpRequest();
@@ -14,7 +14,7 @@ Cloud.prototype.query = function(bucket) {
         xhttp.open("GET", `/query?endpoint=${encodeURIComponent(this.__end_point)}&keyid=${encodeURIComponent(this.__key_id)}` +
             `&instancecrn=${encodeURIComponent(this.__instance_crn)}&bucket=${encodeURIComponent(bucket)}`, true);
 
-        xhttp.onreadystatechange = async function() {
+        xhttp.onreadystatechange = async function () {
 
             if (this.readyState === 4 && this.status === 200) {
                 var paths = [];
@@ -22,7 +22,7 @@ Cloud.prototype.query = function(bucket) {
 
                 accept({
                     status: this.status,
-                    response: response 
+                    response: response
                 });
 
             } else if (this.status === 500) {
@@ -42,7 +42,7 @@ Cloud.prototype.query = function(bucket) {
 
 }
 
-Cloud.prototype.setup = function(formData) {
+Cloud.prototype.setup = function (formData) {
 
     formData.append("endpoint", this.__end_point);
     formData.append("keyid", this.__key_id);
@@ -50,17 +50,17 @@ Cloud.prototype.setup = function(formData) {
 
 }
 
-Cloud.prototype.retrieve = function(bucket, filename) {
+Cloud.prototype.retrieve = function (bucket, filename) {
 
     return new Promise((accept, reject) => {
 
         fetch(`/retrieve?endpoint=${encodeURIComponent(this.__end_point)}&` +
-              `keyid=${encodeURIComponent(this.__key_id)}&` +
-              `instancecrn=${encodeURIComponent(this.__instance_crn)}` + 
-              `&bucket=${encodeURIComponent(bucket)}&` +
-              `filename=${encodeURIComponent(filename)}`, {
-                    responseType: 'blob'
-                })
+            `keyid=${encodeURIComponent(this.__key_id)}&` +
+            `instancecrn=${encodeURIComponent(this.__instance_crn)}` +
+            `&bucket=${encodeURIComponent(bucket)}&` +
+            `filename=${encodeURIComponent(filename)}`, {
+            responseType: 'blob'
+        })
             .then(res => res.blob())
             .then(blob => {
                 accept(blob.arrayBuffer())
@@ -70,30 +70,62 @@ Cloud.prototype.retrieve = function(bucket, filename) {
 
 }
 
-Cloud.prototype.analyze = function(bucket, filename, url, token) {
+Cloud.prototype.analyze = function (bucket, filename, url, token) {
 
     return new Promise((accept, reject) => {
         var xhttp = new XMLHttpRequest();
 
-        xhttp.open("GET", `/analyze?endpoint=${encodeURIComponent(this.__end_point)}` + 
+        xhttp.open("GET", `/analyze?endpoint=${encodeURIComponent(this.__end_point)}` +
             `&keyid=${encodeURIComponent(this.__key_id)}` +
-            `&instancecrn=${encodeURIComponent(this.__instance_crn)}` + 
+            `&instancecrn=${encodeURIComponent(this.__instance_crn)}` +
             `&bucket=${encodeURIComponent(bucket)}` +
-            `&filename=${encodeURIComponent(filename)}` +           
+            `&filename=${encodeURIComponent(filename)}` +
             `&url=${encodeURIComponent(url)}` +
             `&token=${encodeURIComponent(token)}`,
             true);
 
-        xhttp.onreadystatechange = async function() {
+        xhttp.onreadystatechange = async function () {
 
             if (this.readyState === 4 && this.status === 200) {
                 var paths = [];
                 var response = JSON.parse(this.responseText);
 
-                accept({
+                accept(response);
+
+            } else if (this.status === 500) {
+
+                reject({
                     status: this.status,
-                    response: response 
+                    message: this.statusText
                 });
+
+            }
+
+        };
+
+        xhttp.send();
+
+    });
+
+}
+
+Cloud.prototype.receive = function (url, token, submissionID) {
+
+    return new Promise((accept, reject) => {
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.open("GET", `/receive?url=${encodeURIComponent(url)}` +
+            `&token=${encodeURIComponent(token)}` +
+            `&submissionid=${encodeURIComponent(submissionID)}`,
+            true);
+
+        xhttp.onreadystatechange = async function () {
+
+            if (this.readyState === 4 && this.status === 200) {
+                var paths = [];
+                var response = JSON.parse(this.responseText);
+
+                accept(response);
 
             } else if (this.status === 500) {
 

@@ -36,7 +36,7 @@ function drawBoundingBox(canvas, bounds, entry) {
     var w = ((width / 10) * RATIO) * boxWidth;
     var h = ((height / 10) * RATIO) * boxHeight;
 
-    console.log(`Width ${width}, Height : ${height}, x: ${x}, y: ${y}, w: ${w}, h: ${h}, x1:${x1}, y1:${y1}, w:${x2-x1}, h:${y2-y1}`);
+    console.log(`Width ${width}, Height : ${height}, x: ${x}, y: ${y}, w: ${w}, h: ${h}, x1:${x1}, y1:${y1}, w:${x2 - x1}, h:${y2 - y1}`);
 
     context.fillStyle = "rgba(255, 255, 0, 0.5)";
     context.fillRect(x, y, w, h);
@@ -47,7 +47,7 @@ function drawBoundingBox(canvas, bounds, entry) {
 
 }
 
-$.fn.Select = async(filename, bucket) => {
+$.fn.Select = async (filename, bucket) => {
     console.log("Select", filename, bucket);
 
     $('#waitMessage').text("Generating PDF");
@@ -92,7 +92,7 @@ $.fn.Select = async(filename, bucket) => {
 
         button.className = (canvas == 0) ? "round-button-selected" : "round-button-unselected";
         button.textContent = `${canvas + 1}`;
-        button.addEventListener("click", function(event) {
+        button.addEventListener("click", function (event) {
             var elements = document.getElementsByClassName("round-button-selected");
 
             var currentPageID = `page-${elements[0].textContent}`;
@@ -179,7 +179,7 @@ $.fn.Query = () => {
     __cloud = new Cloud($('#cloud-end-point').val(), $('#cloud-key-id').val(), $('#cloud-instance-crn').val());
 
     __cloud.query($('#cloud-bucket').val()).then(result => {
-        
+
         console.log(result);
 
         var paths = result.response.paths;
@@ -238,7 +238,7 @@ async function convert(content, scale) {
 
         return new Promise((accept, reject) => {
 
-            pdf.getPage(pageNo).then(function(page) {
+            pdf.getPage(pageNo).then(function (page) {
 
                 function createCanvas(scale) {
                     var viewport = page.getViewport({ scale: scale });
@@ -273,7 +273,7 @@ async function convert(content, scale) {
     return new Promise((accept, reject) => {
         var loadingTask = pdfjsLib.getDocument({ data: content });
 
-        loadingTask.promise.then(async function(pdf) {
+        loadingTask.promise.then(async function (pdf) {
             var numPages = pdf.numPages;
             var canvases = []
 
@@ -289,10 +289,10 @@ async function convert(content, scale) {
 
 }
 
-$(function() {
+$(function () {
 
-     $('#connect').on('click', (e) => {
-  
+    $('#connect').on('click', (e) => {
+
         $('#close-connect').css('display', 'inline-block');
         $('#cancel_cloud_connect_button').css('display', 'inline-block');
 
@@ -318,17 +318,17 @@ $(function() {
 
     var dropzone = $('#droparea');
 
-    dropzone.on('dragover', function() {
+    dropzone.on('dragover', function () {
         dropzone.addClass('hover');
         return false;
     });
 
-    dropzone.on('dragleave', function() {
+    dropzone.on('dragleave', function () {
         dropzone.removeClass('hover');
         return false;
     });
 
-    dropzone.on('drop', function(e) {
+    dropzone.on('drop', function (e) {
         e.stopPropagation();
         e.preventDefault();
         dropzone.removeClass('hover');
@@ -350,7 +350,7 @@ $(function() {
         defaultUploadBtn.click();
     });
 
-    defaultUploadBtn.on('change', function() {
+    defaultUploadBtn.on('change', function () {
         var files = $(this)[0].files;
 
         processFiles(files);
@@ -360,7 +360,7 @@ $(function() {
     });
 
     $('#ok_cloud_connect_button').on('click', (e) => {
-       
+
         if ($("#cloud-end-point").val().trim() == "" ||
             $("#cloud-key-id").val().trim() == "" ||
             $("#cloud-instance-crn").val().trim() == "") {
@@ -378,22 +378,74 @@ $(function() {
 
     });
 
-    $('#ok_analyze_button').on('click', async (e) => {   
+    $('#ok_analyze_button').on('click', async (e) => {
         console.log(`Analyze: '${$('#analyze-url').val()}' - '${$('#fileName').text()}'`);
-        
+
         $('#waitDialog').css('display', 'inline-block');
         $('#waitMessage').text(`Analyzing file: '${$('#fileName').text()}'`);
- 
-        let result = await __cloud.analyze($('#cloud-bucket').val(), 
-                        $('#fileName').text(), 
-                        $('#analyze-url').val(), 
-                        $('#analyze-token').val());
 
+        let result = await __cloud.analyze($('#cloud-bucket').val(),
+            $('#fileName').text(),
+            $('#analyze-url').val(),
+            $('#analyze-token').val());
+
+        let complete = false;
+        let submissionId = result['submission_id'];
+
+        console.log("Submission ID: " + submissionId);
+
+        let attempt = 1;
+        let response = "";
+
+        while (!complete) {
+            $('#waitMessage').text(`Processing file [${attempt}]: '${$('#fileName').text()}'`);
+
+            response = await __cloud.receive($('#analyze-url').val(),
+                $('#analyze-token').val(),
+                submissionId);
+
+            if (response.hasOwnProperty("state")) {
+
+                console.log("State:", response.state);
+
+                if (response.state == "complete" || response.state == "supervision" || response.state == "failed") {
+                    complete = true;  
+                }
+
+            }
+
+            attempt = attempt + 1;
+            
+        }
+        
         $('#waitMessage').text("");
         $('#waitDialog').css('display', 'none');
         $('#analyze-form').css('display', 'none');
 
-        $('#summary').text(JSON.stringify(result));
+        var html = "";
+  
+        var pages = [];
+
+        for (var document in response['documents']) {
+
+            if (document) {
+
+                for (var page in response['documents'][document]['pages']) {
+                    var content = response['documents'][document]['pages'][page];
+
+                    html += `<h2>Page: ${page + 1}</h2><hr></hr>`;
+                    html += "<br><p>";
+                    html += `${JSON.stringify(content)}</p>`;
+
+                    pages[page] = content;
+
+                }
+
+            }
+
+        }
+        
+        $('#summary').html(html);
 
     });
 
@@ -429,7 +481,7 @@ $(function() {
         return new Promise((accept, reject) => {
             var reader = new FileReader();
 
-            reader.onload = function() {
+            reader.onload = function () {
 
                 accept(reader.result.byteLength);
 
@@ -449,14 +501,14 @@ $(function() {
      */
     function postData(file) {
 
-        return new Promise(async(accept, reject) => {
-             var formData = new FormData();
- 
+        return new Promise(async (accept, reject) => {
+            var formData = new FormData();
+
             __cloud.setup(formData);
             formData.append(file.name, file);
 
             formData.append('bucket', $('#cloud-bucket').val());
-   
+
             $.ajax({
                 url: '/upload',
                 type: 'POST',
@@ -467,10 +519,10 @@ $(function() {
                 async: true,
                 data: formData,
 
-                xhr: function() {
+                xhr: function () {
                     var xhr = $.ajaxSettings.xhr();
 
-                    xhr.upload.addEventListener('progress', function(event) {
+                    xhr.upload.addEventListener('progress', function (event) {
                         if (event.lengthComputable) {
                             var percentComplete = event.loaded / event.total;
 
@@ -479,12 +531,12 @@ $(function() {
                         }
                     }, false);
 
-                    xhr.upload.addEventListener('load', function(event) {}, false);
+                    xhr.upload.addEventListener('load', function (event) { }, false);
 
                     return xhr;
 
                 },
-                error: function(err) {
+                error: function (err) {
                     console.log(`Error: [${err.status}] - ' ${err.statusText}'`);
                     alert(`Error: [${err.status}] - ' ${err.statusText}'`);
                     $('#waitDialog').css('display', 'none');
@@ -492,7 +544,7 @@ $(function() {
                     reject(err.status);
 
                 },
-                success: function(result) {
+                success: function (result) {
                     $('#waitMessage').text(`Loaded File...`);
                     console.log(`Result: ${JSON.parse(result)[0].status}`);
 
