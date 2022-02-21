@@ -64,7 +64,7 @@ Cloud.prototype.retrieve = function (bucket, filename) {
             .then(res => res.blob())
             .then(blob => {
                 accept(blob.arrayBuffer())
-            });
+        });
 
     })
 
