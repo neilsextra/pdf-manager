@@ -179,9 +179,6 @@ $.fn.Query = () => {
     __cloud = new Cloud($('#cloud-end-point').val(), $('#cloud-key-id').val(), $('#cloud-instance-crn').val());
 
     __cloud.query($('#cloud-bucket').val()).then(result => {
-
-        console.log(result);
-
         var paths = result.response.paths;
 
         $('#swiper-wrapper').html("");
@@ -406,25 +403,23 @@ $(function () {
 
             if (response.hasOwnProperty("state")) {
 
-                console.log("State:", response.state);
-
                 if (response.state == "complete" || response.state == "supervision" || response.state == "failed") {
-                    complete = true;  
+                    complete = true;
                 }
 
             }
 
             attempt = attempt + 1;
-            
+
         }
-        
+
         $('#waitMessage').text("");
         $('#waitDialog').css('display', 'none');
         $('#analyze-form').css('display', 'none');
 
         var html = "";
-  
-        var pages = [];
+
+        var image_urls = {};
 
         for (var document in response['documents']) {
 
@@ -433,18 +428,62 @@ $(function () {
                 for (var page in response['documents'][document]['pages']) {
                     var content = response['documents'][document]['pages'][page];
 
-                    html += `<h2>Page: ${page + 1}</h2><hr></hr>`;
-                    html += "<br><p>";
-                    html += `${JSON.stringify(content)}</p>`;
+                    console.log("Image URL", content['corrected_image_url']);
+                    image_urls[content['corrected_image_url']] = content;
 
-                    pages[page] = content;
+                }
 
+                console.log("Image URLS:", image_urls);
+
+                var pages = {};
+
+                for (var field in response['documents'][document]['document_fields']) {
+                    var value = response['documents'][document]['document_fields'][field];
+            
+                    let url = value['field_image_url'].substring(0, value['field_image_url'].indexOf('?')).trim();
+                    let parameters = value['field_image_url'].substring(value['field_image_url'].indexOf('?') + 1);
+
+                    console.log(field, url, parameters);
+                    console.log("File Page Number: ", "'" + image_urls[url]['file_page_number'] + "'");
+ 
+                    if (!(image_urls[url]['file_page_number'] in pages)) {
+
+                        pages[image_urls[url]['file_page_number']] = [];
+
+                    }
+
+                    var content = JSON.stringify(value['transcription']['raw']).replaceAll('"', '').replaceAll("\\n", "<br/>");
+
+                    var cell = {};
+
+                    cell['id'] = parseInt(field) + 1;
+                    cell['name'] = JSON.stringify(value['name']).replaceAll('"', '');
+                    cell['content'] = content.length == 0 ? "<i>No Value</i>" : content;
+
+                    pages[image_urls[url]['file_page_number']].push(cell);
+
+                }
+
+                console.log(JSON.stringify(pages));
+
+                for (var page in pages) {
+
+                    html += `<h2>Page: ${page}</h2><hr></hr>`;
+
+                    for (var field in pages[page]) {
+                        html += `<h3>Field: ${pages[page][field]['id']}</h3>`;
+                        html += `<p style="font-size:12px; font-weight:bold;">`;
+                        html += `${pages[page][field]['name']}</p>`;
+                        html += `<p style="font-size:10px; font-weight:normal;">`;                
+                        html += `${pages[page][field]['content']}</p><br></br>`;
+                    }
+                    
                 }
 
             }
 
         }
-        
+
         $('#summary').html(html);
 
     });
@@ -465,7 +504,6 @@ $(function () {
             $('#waitMessage').text(`Uploading : '${files[file].name}'`);
 
             var result = await postData(files[file]);
-
 
         }
 
