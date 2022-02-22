@@ -8,6 +8,7 @@ var swiper = null;
 var __filename = null;
 var __cloud = null;
 var __bucket = null;
+var __pages = {};
 
 function close_panel(id) {
 
@@ -15,35 +16,44 @@ function close_panel(id) {
 
 }
 
-function drawBoundingBox(canvas, bounds, entry) {
+function drawBoundingBox(canvas, bounds) {
     var context = canvas.getContext('2d');
 
     var width = context.canvas.width;
     var height = context.canvas.height;
 
-    var x1 = bounds[0];
-    var y1 = bounds[1];
+    var x1 = parseFloat(bounds['start_x']);
+    var y1 = parseFloat(bounds['start_y']);
 
-    var x2 = bounds[4];
-    var y2 = bounds[5];
+    var x2 = parseFloat(bounds['end_x']);
+    var y2 = parseFloat(bounds['end_y']);
 
-    var x = (((width / 10) * 1.2) * x1);
-    var y = (((height / 10) * 0.85) * y1);
+    var x = (width * x1);
+    var y = (height* y1);
 
     var boxWidth = x2 - x1;
     var boxHeight = y2 - y1;
 
-    var w = ((width / 10) * RATIO) * boxWidth;
-    var h = ((height / 10) * RATIO) * boxHeight;
+    var w = (width * RATIO) * boxWidth;
+    var h = (height * RATIO) * boxHeight;
 
     console.log(`Width ${width}, Height : ${height}, x: ${x}, y: ${y}, w: ${w}, h: ${h}, x1:${x1}, y1:${y1}, w:${x2 - x1}, h:${y2 - y1}`);
 
     context.fillStyle = "rgba(255, 255, 0, 0.5)";
     context.fillRect(x, y, w, h);
 
-    context.font = "8px Arial";
-    context.fillStyle = "rgba(0, 0, 0, 1.0)";
-    context.fillText(`${entry}`, x + w + 2, y);
+}
+
+function parseParameters(str) {
+    var l = str.slice(1,-1).split('&');
+    var d = {};
+    
+    for (var i in l) {
+        var a = l[i].split('=');
+        d[a[0].trim()] = a[1].trim();
+    }
+
+    return d;
 
 }
 
@@ -81,6 +91,7 @@ $.fn.Select = async (filename, bucket) => {
         $('#display')[0].appendChild(div);
 
     }
+
     var pages = $('#pages')[0];
 
     while (pages.firstChild) {
@@ -241,11 +252,13 @@ async function convert(content, scale) {
                     var viewport = page.getViewport({ scale: scale });
 
                     // Prepare canvas using PDF page dimensions.
-                    var canvas = document.createElement('canvas');
+                    var canvas = document.createElement('canvas')
+
                     var context = canvas.getContext('2d');
 
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
+                    canvas.id = `canvas-${pageNo}`;
 
                     // Render PDF page into canvas context.
                     var renderContext = {
@@ -421,12 +434,12 @@ $(function () {
 
         var image_urls = {};
 
-        for (var document in response['documents']) {
+        for (var file in response['documents']) {
 
-            if (document) {
+            if (file) {
 
-                for (var page in response['documents'][document]['pages']) {
-                    var content = response['documents'][document]['pages'][page];
+                for (var page in response['documents'][file]['pages']) {
+                    var content = response['documents'][file]['pages'][page];
 
                     console.log("Image URL", content['corrected_image_url']);
                     image_urls[content['corrected_image_url']] = content;
@@ -435,20 +448,20 @@ $(function () {
 
                 console.log("Image URLS:", image_urls);
 
-                var pages = {};
+                __pages = {};
 
-                for (var field in response['documents'][document]['document_fields']) {
-                    var value = response['documents'][document]['document_fields'][field];
+                for (var field in response['documents'][file]['document_fields']) {
+                    var value = response['documents'][file]['document_fields'][field];
             
                     let url = value['field_image_url'].substring(0, value['field_image_url'].indexOf('?')).trim();
-                    let parameters = value['field_image_url'].substring(value['field_image_url'].indexOf('?') + 1);
+                    let parameters = value['field_image_url'].substring(value['field_image_url'].indexOf('?'));
 
                     console.log(field, url, parameters);
                     console.log("File Page Number: ", "'" + image_urls[url]['file_page_number'] + "'");
  
-                    if (!(image_urls[url]['file_page_number'] in pages)) {
+                    if (!(image_urls[url]['file_page_number'] in __pages)) {
 
-                        pages[image_urls[url]['file_page_number']] = [];
+                        __pages[image_urls[url]['file_page_number']] = [];
 
                     }
 
@@ -459,23 +472,30 @@ $(function () {
                     cell['id'] = parseInt(field) + 1;
                     cell['name'] = JSON.stringify(value['name']).replaceAll('"', '');
                     cell['content'] = content.length == 0 ? "<i>No Value</i>" : content;
+                    cell['position'] = parseParameters(parameters);
 
-                    pages[image_urls[url]['file_page_number']].push(cell);
+                    console.log("Position: ", cell['position']);
+
+                    __pages[image_urls[url]['file_page_number']].push(cell);
 
                 }
 
-                console.log(JSON.stringify(pages));
+                console.log(JSON.stringify(__pages));
 
-                for (var page in pages) {
+                for (var page in __pages) {
 
                     html += `<h2>Page: ${page}</h2><hr></hr>`;
 
-                    for (var field in pages[page]) {
-                        html += `<h3>Field: ${pages[page][field]['id']}</h3>`;
+                    for (var field in __pages[page]) {
+
+                        html += `<h3>Field: ${__pages[page][field]['id']}</h3>`;
                         html += `<p style="font-size:12px; font-weight:bold;">`;
-                        html += `${pages[page][field]['name']}</p>`;
+                        html += `${__pages[page][field]['name']}</p>`;
                         html += `<p style="font-size:10px; font-weight:normal;">`;                
-                        html += `${pages[page][field]['content']}</p><br></br>`;
+                        html += `${__pages[page][field]['content']}</p>`;
+
+                        drawBoundingBox(document.getElementById(`canvas-${page}`), __pages[page][field]['position']);
+  
                     }
                     
                 }
