@@ -34,8 +34,8 @@ function drawBoundingBox(canvas, bounds) {
     var boxWidth = x2 - x1;
     var boxHeight = y2 - y1;
 
-    var w = (width * RATIO) * boxWidth;
-    var h = (height * RATIO) * boxHeight;
+    var w = width * boxWidth;
+    var h = height * boxHeight;
 
     console.log(`Width ${width}, Height : ${height}, x: ${x}, y: ${y}, w: ${w}, h: ${h}, x1:${x1}, y1:${y1}, w:${x2 - x1}, h:${y2 - y1}`);
 
