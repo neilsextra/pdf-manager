@@ -58,10 +58,9 @@ function parseParameters(str) {
 }
 
 $.fn.Select = async (filename, bucket) => {
-    console.log("Select", filename, bucket);
-
     $('#waitMessage').text("Generating PDF");
     $('#waitDialog').css('display', 'inline-block');
+    $('#analzye').css('color', '#006DF0');
 
     var pdf = await __cloud.retrieve(bucket, filename);
     var canvases = await convert(pdf, RATIO);
@@ -300,7 +299,6 @@ async function convert(content, scale) {
 }
 
 $(function () {
-
     $('#connect').on('click', (e) => {
 
         $('#close-connect').css('display', 'inline-block');
@@ -319,6 +317,11 @@ $(function () {
     });
 
     $('#analyze').on('click', (e) => {
+
+        if ($('#fileName').text().length == 0) {
+             e.preventDefault();
+             return false;
+        }
 
         $('#analyze-form').css('display', 'inline-block');
 
@@ -408,7 +411,7 @@ $(function () {
         let response = "";
 
         while (!complete) {
-            $('#waitMessage').text(`Processing file [${attempt}]: '${$('#fileName').text()}'`);
+            $('#waitMessage').text(`Processing file : '${$('#fileName').text()}' - Taken : [${attempt}] seconds`);
 
             response = await __cloud.receive($('#analyze-url').val(),
                 $('#analyze-token').val(),
