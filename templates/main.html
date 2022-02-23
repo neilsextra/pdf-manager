@@ -10,19 +10,22 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='tab.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dropdown.css') }}" />
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='slider.css') }}" />
-    <link rel="stylesheet" type="text/css" href="{{ npm_url_for(component='swiper', filename='dist/css/swiper.min.css') }}" />
+    <link rel="stylesheet" type="text/css"
+        href="{{ npm_url_for(component='swiper', filename='dist/css/swiper.min.css') }}" />
 
     <script>
-        var expandImage = "{{ url_for('static', filename='expand.svg') }}";
-        var pdfImageModel = "{{ url_for('static', filename='pdf-file-model.svg') }}";
-        var pdfImageNoModel = "{{ url_for('static', filename='pdf-file-no-model.svg') }}";
+        var expandImage = "{{ url_for('static', filename='expand.png') }}";
+        var pdfImageNoModel = "{{ url_for('static', filename='pdf.png') }}";
     </script>
 
     <script type="text/javascript" src="{{ npm_url_for(component='jquery', filename='dist/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ npm_url_for(component='jquery.cookie', filename='jquery.cookie.js') }}"></script>
-    <script type="text/javascript" src="{{ npm_url_for(component='swiper', filename='dist/js/swiper.min.js') }}"></script>
+    <script type="text/javascript"
+        src="{{ npm_url_for(component='jquery.cookie', filename='jquery.cookie.js') }}"></script>
+    <script type="text/javascript"
+        src="{{ npm_url_for(component='swiper', filename='dist/js/swiper.min.js') }}"></script>
     <script type="text/javascript" src="{{ npm_url_for(component='pdfjs-dist', filename='build/pdf.js') }}"></script>
-    <script type="text/javascript" id="pdf-js-worker" src="{{ npm_url_for(component='pdfjs-dist', filename='build/pdf.worker.js') }}"></script>
+    <script type="text/javascript" id="pdf-js-worker"
+        src="{{ npm_url_for(component='pdfjs-dist', filename='build/pdf.worker.js') }}"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = document.getElementById("pdf-js-worker").getAttribute("src");
     </script>
@@ -33,31 +36,172 @@
 
 <body>
     <div class='main' style="width: 12%; height:12%; overflow:hidden; background-color: #97b9d8;">
-        <div style="position: absolute; overflow:hidden; top:0px; bottom:0px; left:0px; right:0px; background-color: #97b9d8;">
-            <img src="{{ url_for('static', filename='receipt.svg') }}" style="position:absolute; top:6px; left:10px; height:64px; width:64px" alt="Receipt" />
+        <div id="cloud-connect" class="modal">
+            <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
+                <div class="modal-content" style="margin-top:40px; width:440px;">
+                    <div class="modal-header">
+                        <span id="close-connect" class="close" style="display:none;"
+                            onclick="close_panel( '#cloud-connect')">&times;</span>
+                        <h2 id="dialog_title">Connect to IBM Cloud Store</h2>
+                    </div>
+                    <div class="modal-body" id="text" style="height:240px;">
+                        <table style="font-size: small; padding:8px;">
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    End Point
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="cloud-end-point" name="cloud-end-point"
+                                        style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Key Id
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="password" id="cloud-key-id" name="cloud-key-id"
+                                        style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Instance CRN
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="cloud-instance-crn" name="cloud-instance-crn"
+                                        style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Bucket
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="cloud-bucket" name="cloud-bucket"
+                                        style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr style="font-weight: bold; color:red;">
+                                <td id="cloud-message"></td>
+                            </tr>
+                        </table>
+                    </div>
+    
+                    <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
+                        <button class="action-btn" id="ok_cloud_connect_button">OK</button>
+                        <button class="action-btn" id="cancel_cloud_connect_button" style="display:none;"
+                            onclick="close_panel( '#cloud-connect')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="analyze-form" class="modal" style="display: none;">
+            <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
+                <div class="modal-content" style="margin-top:40px; width:440px;">
+                    <div class="modal-header">
+                        <span id="close-analyze" class="close" style="display:none;"
+                            onclick="close_panel( '#cloud-connect')">&times;</span>
+                        <h2 id="dialog_title">Analyze Form</h2>
+                    </div>
+                    <div class="modal-body" id="text" style="height:240px;">
+                        <table style="font-size: small; padding:8px;">
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Analyze URL
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" id="analyze-url" name="analyze-urlß"
+                                        style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; color:black;">
+                                    Token
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="password" id="analyze-token" name="analyze-token"
+                                        style="font-size: small; width:380px; height:18px;"></input>
+                                </td>
+                            </tr>
+    
+                            <tr>
+                                <td>&nbsp;</td>
+                            </tr>
+                            <tr style="font-weight: bold; color:red;">
+                                <td id="analyze-message"></td>
+                            </tr>
+                        </table>
+                    </div>
+    
+                    <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
+                        <button class="action-btn" id="ok_analyze_button">OK</button>
+                        <button class="action-btn" id="cancel_analyze_button"
+                            onclick="close_panel( '#analyze-form')">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div id='waitDialog' class="modal" style="display:none;">
+            <div style="position:fixed; text-align: center; top:50%; left:48%; margin-left:0px; margin-top:-100px;">
+                <div class='loader'></div>
+            </div>
+            <div id='waitMessage'
+                style="position:absolute; top:50%; color:black; text-align: center; font-weight:bold; font-size:14px; width:100%; z-index:10000;">
+            </div>
+    
+        </div>
+        <div
+            style="position: absolute; overflow:hidden; top:0px; bottom:0px; left:0px; right:0px; background-color: rgba(109, 170, 240, 0.4) ;">
+            <img src="{{ url_for('static', filename='thinking.png') }}"
+                style="position:absolute; top:6px; left:10px; height:64px; width:64px" alt="Receipt" />
             <div id='toolbar'>
-                <div style="position:absolute; top:16px; left:84px; font-weight:bold; font-size: 32px; letter-spacing: 4px; color:#006DF0;">
+                <div
+                    style="position:absolute; top:16px; left:84px; font-weight:bold; font-size: 32px; letter-spacing: 4px; color:#006DF0;">
                     <label>PDF Manager</label>
                 </div>
-                <div id="fileNameLabel" style="position: absolute; top:15px; left:340px; font-size:18px; width:550px; height:24px; text-align:left; padding:10px; color: #006DF0;">
+                <div id="fileNameLabel"
+                    style="position: absolute; top:15px; left:340px; font-size:18px; width:550px; height:24px; text-align:left; padding:10px; color: #006DF0;">
                     <label id="fileName"></label>
                 </div>
-                <div id="connectButton" class="action-btn" style="position: absolute; top:10px; right:10px; width:70px;">
+                <div id="connectButton" class="action-btn"
+                    style="position: absolute; top:10px; right:10px; width:70px;">
                     <a id="connect" href="" style="color: #006DF0; font-size: 16px; text-decoration: none">Connect</a>
                 </div>
             </div>
-            <div id="document" style="position:absolute; top:75px; left:10px; right:445px; bottom:260px; border:3px solid #0174DF;">
-                <div id="display" style="position:absolute; display:none; top:10px; left:10px; right:10px; bottom:35px; padding:10px; overflow:auto; background-color:rgba(255, 255, 255, 0.3);  border:3px solid #0174DF;">
+            <div id="document"
+                style="position:absolute; top:75px; left:10px; right:445px; bottom:260px; border:3px solid #0174DF;">
+                <div id="display"
+                    style="position:absolute; display:none; top:10px; left:10px; right:10px; bottom:35px; padding:10px; overflow:auto; background-color:rgba(255, 255, 255, 0.3);  border:3px solid #0174DF;">
                 </div>
                 <div id="pages" style="position:absolute; left:10px; right:0px; bottom:2px; margin: auto;">
                 </div>
             </div>
         </div>
-        <div id="details" style="position:fixed; top:75px; right:10px; width:400px; bottom:260px; border:3px solid #0174DF; padding:10px; overflow:hidden; background-color:rgba(255, 255, 255, 0.3);">
-            <div id="summary" style="position:absolute; top:10px; right:10px; left:10px; bottom:50px; border:3px solid #0174DF; padding:10px; overflow:auto; background-color:rgba(255, 255, 255, 1.0);">
+        <div id="details"
+            style="position:fixed; top:75px; right:10px; width:400px; bottom:260px; border:3px solid #0174DF; padding:10px; overflow:hidden; background-color:rgba(255, 255, 255, 0.3);">
+            <div id="summary"
+                style="position:absolute; top:10px; right:10px; left:10px; bottom:50px; border:3px solid #0174DF; padding:10px; overflow:auto; background-color:rgba(255, 255, 255, 1.0);">
             </div>
             <div id="analyzeButton" class="action-btn" style="position: absolute; bottom:0px; right:10px; width:70px;">
-                <a id="analyze" href="" style="color: #006DF0; font-size: 18px; font-weight: normal; text-decoration: none">Analyze</a>
+                <a id="analyze" href=""
+                    style="color: #006DF0; font-size: 18px; font-weight: normal; text-decoration: none">Analyze</a>
             </div>
 
         </div>
@@ -74,136 +218,21 @@
                         <p>or</p>
                         <p></p>
                         <input class='action-btn' id='uploadbtn' type='button' value="Select Documents" />
-                        <input id='upload' type='file' accept='*.pdf' multiple/>
+                        <input id='upload' type='file' accept='*.pdf' multiple />
                     </div>
                 </div>
             </div>
         </div>
-        <div id='navigator' style='position:absolute; left:260px; right:8px; bottom:17px; height:218px; margin:2px; border:3px solid #0174DF; padding:5px;'>
+        <div id='navigator'
+            style='position:absolute; left:260px; right:8px; bottom:17px; height:218px; margin:2px; border:3px solid #0174DF; padding:5px;'>
             <div class='swiper-container' id='swiper-container' style='right:0px; padding-bottom:60px;'>
                 <div id='swiper-wrapper' class='swiper-wrapper' style='height:160px; width:160px;'></div>
                 <div id='swiper-pagination' class='swiper-pagination' style='margin-top:0px'></div>
             </div>
         </div>
-        <div id="cloud-connect">
-            <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
-                <div class="modal-content" style="margin-top:40px; width:440px;">
-                    <div class="modal-header">
-                        <span id="close-connect" class="close" style="display:none;" onclick="close_panel( '#cloud-connect')">&times;</span>
-                        <h2 id="dialog_title">Connect to IBM Cloud Store</h2>
-                    </div>
-                    <div class="modal-body" id="text" style="height:240px;">
-                        <table style="font-size: small; padding:8px;">
-                            <tr>
-                                <td style="font-weight: bold; color:black;">
-                                    End Point
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="text" id="cloud-end-point" name="cloud-end-point" style="font-size: small; width:380px; height:18px;"></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold; color:black;">
-                                    Key Id
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="password" id="cloud-key-id" name="cloud-key-id" style="font-size: small; width:380px; height:18px;"></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold; color:black;">
-                                    Instance CRN
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="text" id="cloud-instance-crn" name="cloud-instance-crn" style="font-size: small; width:380px; height:18px;"></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold; color:black;">
-                                    Bucket
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="text" id="cloud-bucket" name="cloud-bucket" style="font-size: small; width:380px; height:18px;"></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>&nbsp;</td>
-                            </tr>
-                            <tr style="font-weight: bold; color:red;">
-                                <td id="cloud-message"></td>
-                            </tr>
-                        </table>
-                    </div>
-                    
-                    <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
-                        <button class="action-btn" id="ok_cloud_connect_button">OK</button>
-                        <button class="action-btn" id="cancel_cloud_connect_button" style="display:none;" onclick="close_panel( '#cloud-connect')">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="analyze-form" style="display: none;">
-            <div style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;">
-                <div class="modal-content" style="margin-top:40px; width:440px;">
-                    <div class="modal-header">
-                        <span id="close-analyze" class="close" style="display:none;" onclick="close_panel( '#cloud-connect')">&times;</span>
-                        <h2 id="dialog_title">Analyze Form</h2>
-                    </div>
-                    <div class="modal-body" id="text" style="height:240px;">
-                        <table style="font-size: small; padding:8px;">
-                            <tr>
-                                <td style="font-weight: bold; color:black;">
-                                    Analyze URL
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="text" id="analyze-url" name="analyze-urlß" style="font-size: small; width:380px; height:18px;"></input>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: bold; color:black;">
-                                    Token
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="password" id="analyze-token" name="analyze-token" style="font-size: small; width:380px; height:18px;"></input>
-                                </td>
-                            </tr>
-
-                          <tr>
-                                <td>&nbsp;</td>
-                            </tr>
-                            <tr style="font-weight: bold; color:red;">
-                                <td id="analyze-message"></td>
-                            </tr>
-                        </table>
-                    </div>
-                    
-                    <div style="padding-left:20px; margin-top:20px; background-color: rgba(12, 83, 175, 0.8);">
-                        <button class="action-btn" id="ok_analyze_button">OK</button>
-                        <button class="action-btn" id="cancel_analyze_button" onclick="close_panel( '#analyze-form')">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id='waitDialog' style="display:none; z-index: 1000;">
-        <div style="position:fixed; text-align: center; top:50%; left:48%; margin-left:0px; margin-top:-100px;">
-            <div class='loader'></div>
-        </div>
-        <div id='waitMessage' style="position:absolute; top:50%; color:black; text-align: center; font-weight:bold; font-size:14px; width:100%; z-index:10000;"></div>
 
     </div>
+
 </body>
 
 </html>

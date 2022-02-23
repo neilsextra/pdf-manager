@@ -17,8 +17,8 @@
     /* Full width */
     overflow: auto;
     /* Enable scroll if needed */
-    opacity: 0.2;
-    background-color: rgba(12, 83, 175, 0.8);
+    opacity: 1.0;
+    background-color: rgba(12, 83, 175, 0.4);
     /* Black w/ opacity */
 }
 
@@ -32,12 +32,11 @@
     bottom: 0px;
     left: 0px;
     right: 0px;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.1);
     z-index: 1000;
     /* Sit on top */
-    opacity: 0.6;
+    opacity: 0.2;
 }
-
 
 /* Modal Content */
 
@@ -45,7 +44,7 @@
     position: relative;
     margin: auto;
     padding: 0;
-    border: 2px solid rgba(12, 83, 175, 0.8);
+    border: 2px solid rgba(12, 83, 175, 1.0);
     background: white;
     width: 70%;
     z-index: 20;
@@ -60,7 +59,7 @@
     padding: 2px 2px;
     font-size: 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: rgba(12, 83, 175, 0.8);
+    background-color: rgba(12, 83, 175, 1.0);
     letter-spacing: 4px;
     text-indent: 10px;
     color: white;

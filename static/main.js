@@ -28,8 +28,8 @@ function drawBoundingBox(canvas, bounds) {
     var x2 = parseFloat(bounds['end_x']);
     var y2 = parseFloat(bounds['end_y']);
 
-    var x = (width * x1);
-    var y = (height* y1);
+    var x = (width * x1) + (width * 0.1);
+    var y = (height * y1) + (height * 0.1);
 
     var boxWidth = x2 - x1;
     var boxHeight = y2 - y1;
@@ -170,13 +170,13 @@ $.fn.Query = () => {
             `<div id="id-${entry['name']}" style="width:180px; height:150px; margin:auto; overflow:hidden;"/>` +
             "<img  " +
             `src='${('modelId' in entry ? pdfImageModel : pdfImageNoModel)}'` +
-            "' style='position:absolute; display:block; width:150px; height:100px;top:10px; left:10px;'></img> " +
+            "' style='position:absolute; display:block; width:128px; height:128px; top:10px; left:10px;'></img> " +
             ` <label style='position:absolute; display:block; font-size:14px; bottom:0px; left:0px; width:100%; color:#0174DF; text-overflow: ellipsis; z-index:99; ` +
             ` background-color:rgb(0, 0, 0, 0.1);'>&nbsp;${entry['name']}</label>` +
             `</div>` +
 
             `<div class="play">` +
-            `<img src="${expandImage}" style="width:48px; height:48px; z-index:100;"/></div>` +
+            `<img src="${expandImage}" style="width:64px; height:64px; z-index:100;"/></div>` +
             " </div>";
 
         return pageHtml;
@@ -450,9 +450,10 @@ $(function () {
 
                 __pages = {};
 
+                console.log(JSON.stringify(response['documents'][file]['document_fields']));
+
                 for (var field in response['documents'][file]['document_fields']) {
-                    var value = response['documents'][file]['document_fields'][field];
-            
+                    var value = response['documents'][file]['document_fields'][field];           
                     let url = value['field_image_url'].substring(0, value['field_image_url'].indexOf('?')).trim();
                     let parameters = value['field_image_url'].substring(value['field_image_url'].indexOf('?'));
 
